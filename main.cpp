@@ -26,9 +26,9 @@ int main(int argc, char *argv[]){
 		vector<string> words = splitString(current);
 		string cPoint = "";
 		string OpCode = "";
-		string ri = "";
-		string rj = "";
-		string iw2 = "";
+		string op1 = "";
+		string op2 = "";
+		string op3 = "";
 		//Read parts from line
 		for(int j=0; j<words.size();j++){
 			if(j==0 && words.at(j)[0] == '#'){
@@ -37,14 +37,14 @@ int main(int argc, char *argv[]){
 			else if(OpCode.empty()){
 				OpCode = words.at(j);
 			}
-			else if(ri.empty()){
-				ri = words.at(j);
+			else if(op1.empty()){
+				op1 = words.at(j);
 			}
-			else if(rj.empty()){
-				rj = words.at(j);
+			else if(op2.empty()){
+				op2 = words.at(j);
 			}
-			else if(iw2.empty()){
-				iw2 = words.at(j);
+			else if(op3.empty()){
+				op3 = words.at(j);
 			}
 		}
 		//Add to list of instruction words
@@ -52,7 +52,7 @@ int main(int argc, char *argv[]){
 			Points.push_back(point(addr,cPoint));
 		}
 		if(!OpCode.empty()){
-			instruction In = instruction(OpCode, ri, rj, iw2, i+1);
+			instruction In = instruction(i+1, OpCode, op1, op2, op3);
 			Instructions.push_back(In);
 			addr = addr + In.getLength();
 		}
@@ -61,13 +61,9 @@ int main(int argc, char *argv[]){
 	ASM.close();
 
 	//Determine Output File
-	const int nameL = strlen(argv[1]);
-	char outFile[50] = {NULL};
-	strcpy(outFile, argv[1]);
-	outFile[nameL-3] = 'b';
-	outFile[nameL-2] = 'i';
-	outFile[nameL-1] = 'n';
-	ofstream BIN (outFile);
+	string fileName = string(argv[1]);
+	fileName.replace(fileName.end() - 4, fileName.end(), ".bin");
+	ofstream BIN (fileName);
 
 	//Second loop writes to file
 	addr = 0;
@@ -76,7 +72,7 @@ int main(int argc, char *argv[]){
 		BIN << Instructions.at(i).writeWord(addr);
 	}
 	BIN.close();
-	cout << "Created " << outFile << endl;
+	cout << "Created " << fileName << endl;
 	return 0;
 }
 

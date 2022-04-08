@@ -4,143 +4,143 @@
 #include <stdlib.h>
 using namespace std;
 
-instruction::instruction(string opCode, string Ri, string Rj, string iw2, int lineNum){
+instruction::instruction(int lineNum, string opCode, string op1, string op2, string op3){
 	//Set defaults
 	Op = 0b00000001;
-	A = Ri;
-	B = Rj;
-	off = iw2;
-	Mem = "";
+	A = op1;
+	B = op2;
+	Data = op3;
+	isData = false;
 	Len = 1;
 	sourceLine = lineNum;
 
 	//Assign correct OpCode
 	//HLT & NOP
 	if(opCode == "HLT"){
-		Op = Op | 0b00000000;
+		Op = 0b00000000;
 	}
 	else if(opCode == "NOP"){
-		Op = Op | 0b00000001;
+		Op = 0b00000001;
 	}
 	//Flags
 	else if(opCode == "FSN"){
-		Op = Op | 0b00000010;
+		Op = 0b00000010;
 	}
 	else if(opCode == "FCN"){
-		Op = Op | 0b00000010;
+		Op = 0b00000010;
 	}
 	else if(opCode == "FSI"){
-		Op = Op | 0b00000100;
+		Op = 0b00000100;
 	}
 	else if(opCode == "FSC"){
-		Op = Op | 0b00000110;
+		Op = 0b00000110;
 	}
 	else if(opCode == "FCC"){
-		Op = Op | 0b00000111;
+		Op = 0b00000111;
 	}
 	else if(opCode == "FCA"){
-		Op = Op | 0b00001000;
+		Op = 0b00001000;
 	}
 	//RET & RETI
 	else if(opCode == "RET"){
-		Op = Op | 0b00001001;
+		Op = 0b00001001;
 	}
 	else if(opCode == "RETI"){
-		Op = Op | 0b00001010;
+		Op = 0b00001010;
 	}
 	//Delay
 	else if(opCode == "DLY"){
-		Op = Op | 0b00001110;
+		Op = 0b00001110;
 	}
 	//Branch
 	else if(opCode == "BCS"){
-		Op = Op | 0b00010000;
+		Op = 0b00010000;
 		Len = 2;
-		off = A;
+		Data = A;
 	}
 	else if(opCode == "BCC"){
-		Op = Op | 0b00010001;
+		Op = 0b00010001;
 		Len = 2;
-		off = A;
+		Data = A;
 	}
 	else if(opCode == "BNS"){
-		Op = Op | 0b00010010;
+		Op = 0b00010010;
 		Len = 2;
-		off = A;
+		Data = A;
 	}
 	else if(opCode == "BNC"){
-		Op = Op | 0b00010011;
+		Op = 0b00010011;
 		Len = 2;
-		off = A;
+		Data = A;
 	}
 	else if(opCode == "BZS"){
-		Op = Op | 0b00010100;
+		Op = 0b00010100;
 		Len = 2;
-		off = A;
+		Data = A;
 	}
 	else if(opCode == "BZC"){
-		Op = Op | 0b00010101;
+		Op = 0b00010101;
 		Len = 2;
-		off = A;
+		Data = A;
 	}
 	else if(opCode == "BLT"){
-		Op = Op | 0b00010110;
+		Op = 0b00010110;
 		Len = 2;
-		off = A;
+		Data = A;
 	}
 	else if(opCode == "BGE"){
-		Op = Op | 0b00010111;
+		Op = 0b00010111;
 		Len = 2;
-		off = A;
+		Data = A;
 	}
 	else if(opCode == "BGT"){
-		Op = Op | 0b00011000;
+		Op = 0b00011000;
 		Len = 2;
-		off = A;
+		Data = A;
 	}
 	else if(opCode == "BLE"){
-		Op = Op | 0b00011001;
+		Op = 0b00011001;
 		Len = 2;
-		off = A;
+		Data = A;
 	}
 	else if(opCode == "BS1"){
-		Op = Op | 0b00011010;
+		Op = 0b00011010;
 		Len = 2;
-		off = A;
+		Data = A;
 	}
 	else if(opCode == "BS2"){
-		Op = Op | 0b00011011;
+		Op = 0b00011011;
 		Len = 2;
-		off = A;
+		Data = A;
 	}
 	else if(opCode == "BS3"){
-		Op = Op | 0b00011100;
+		Op = 0b00011100;
 		Len = 2;
-		off = A;
+		Data = A;
 	}
 	else if(opCode == "BS4"){
-		Op = Op | 0b00011101;
+		Op = 0b00011101;
 		Len = 2;
-		off = A;
+		Data = A;
 	}
 	//INC
 	else if(opCode == "INC"){
 		//Opcode
 		if(A == "AL"){
-			Op = Op | 0b00101000;
+			Op = 0b00101000;
 		}
 		else if(A == "AX"){
-			Op = Op | 0b00111000;
+			Op = 0b00111000;
 		}
 		else if(A == "RT"){
-			Op = Op | 0b00111110;
+			Op = 0b00111110;
 		}
 		else if(A[1] == 'X'){
-			Op = Op | 0b00110000;
+			Op = 0b00110000;
 			Len = 2;
 		}
 		else if(A[1] == 'H' || A[1] == 'L'){
-			Op = Op | 0b00100000;
+			Op = 0b00100000;
 			Len = 2;
 		}
 		else{
@@ -148,27 +148,27 @@ instruction::instruction(string opCode, string Ri, string Rj, string iw2, int li
 		}
 		//Register
 		if(Len == 2){
-			off = "B" + RegisterNibble(A);
+			Data = "B" + RegisterNibble(A) + "0000";
 		}
 	}
 	//DEC
 	else if(opCode == "DEC"){
 		//Opcode
 		if(A == "AL"){
-			Op = Op | 0b00101001;
+			Op = 0b00101001;
 		}
 		else if(A == "AX"){
-			Op = Op | 0b00111001;
+			Op = 0b00111001;
 		}
 		else if(A == "RT"){
-			Op = Op | 0b00111111;
+			Op = 0b00111111;
 		}
 		else if(A[1] == 'X'){
-			Op = Op | 0b00110001;
+			Op = 0b00110001;
 			Len = 2;
 		}
 		else if(A[1] == 'H' || A[1] == 'L'){
-			Op = Op | 0b00100001;
+			Op = 0b00100001;
 			Len = 2;
 		}
 		else{
@@ -176,24 +176,24 @@ instruction::instruction(string opCode, string Ri, string Rj, string iw2, int li
 		}
 		//Register
 		if(Len == 2){
-			off = "B" + RegisterNibble(A);
+			Data = "B" + RegisterNibble(A) + "0000";
 		}
 	}
 	//CLR
 	else if(opCode == "CLR"){
 		//Opcode
 		if(A == "AL"){
-			Op = Op | 0b00101010;
+			Op = 0b00101010;
 		}
 		else if(A == "AX"){
-			Op = Op | 0b00111010;
+			Op = 0b00111010;
 		}
 		else if(A[1] == 'X'){
-			Op = Op | 0b00110010;
+			Op = 0b00110010;
 			Len = 2;
 		}
 		else if(A[1] == 'H' || A[1] == 'L'){
-			Op = Op | 0b00100010;
+			Op = 0b00100010;
 			Len = 2;
 		}
 		else{
@@ -201,24 +201,24 @@ instruction::instruction(string opCode, string Ri, string Rj, string iw2, int li
 		}
 		//Register
 		if(Len == 2){
-			off = "B" + RegisterNibble(A);
+			Data = "B" + RegisterNibble(A) + "0000";
 		}
 	}
 	//NOT
 	else if(opCode == "NOT"){
 		//Opcode
 		if(A == "AL"){
-			Op = Op | 0b00101011;
+			Op = 0b00101011;
 		}
 		else if(A == "AX"){
-			Op = Op | 0b00111011;
+			Op = 0b00111011;
 		}
 		else if(A[1] == 'X'){
-			Op = Op | 0b00110011;
+			Op = 0b00110011;
 			Len = 2;
 		}
 		else if(A[1] == 'H' || A[1] == 'L'){
-			Op = Op | 0b00100011;
+			Op = 0b00100011;
 			Len = 2;
 		}
 		else{
@@ -226,24 +226,24 @@ instruction::instruction(string opCode, string Ri, string Rj, string iw2, int li
 		}
 		//Register
 		if(Len == 2){
-			off = "B" + RegisterNibble(A);
+			Data = "B" + RegisterNibble(A) + "0000";
 		}
 	}
 	//LSL
 	else if(opCode == "LSL"){
 		//Opcode
 		if(A == "AL"){
-			Op = Op | 0b00101100;
+			Op = 0b00101100;
 		}
 		else if(A == "AX"){
-			Op = Op | 0b00111100;
+			Op = 0b00111100;
 		}
 		else if(A[1] == 'X'){
-			Op = Op | 0b00110100;
+			Op = 0b00110100;
 			Len = 2;
 		}
 		else if(A[1] == 'H' || A[1] == 'L'){
-			Op = Op | 0b00100100;
+			Op = 0b00100100;
 			Len = 2;
 		}
 		else{
@@ -251,24 +251,24 @@ instruction::instruction(string opCode, string Ri, string Rj, string iw2, int li
 		}
 		//Register
 		if(Len == 2){
-			off = "B" + RegisterNibble(A);
+			Data = "B" + RegisterNibble(A) + "0000";
 		}
 	}
 	//LSR
 	else if(opCode == "LSR"){
 		//Opcode
 		if(A == "AL"){
-			Op = Op | 0b00101101;
+			Op = 0b00101101;
 		}
 		else if(A == "AX"){
-			Op = Op | 0b00111101;
+			Op = 0b00111101;
 		}
 		else if(A[1] == 'X'){
-			Op = Op | 0b00110101;
+			Op = 0b00110101;
 			Len = 2;
 		}
 		else if(A[1] == 'H' || A[1] == 'L'){
-			Op = Op | 0b00100101;
+			Op = 0b00100101;
 			Len = 2;
 		}
 		else{
@@ -276,24 +276,24 @@ instruction::instruction(string opCode, string Ri, string Rj, string iw2, int li
 		}
 		//Register
 		if(Len == 2){
-			off = "B" + RegisterNibble(A);
+			Data = "B" + RegisterNibble(A) + "0000";
 		}
 	}
 	//ADD
 	else if(opCode == "ADD"){
 		//Opcode
 		if(A == "BL" && B == "AL"){
-			Op = Op | 0b01001000;
+			Op = 0b01001000;
 		}
-		else if(A == "BX" && B == 'AX'){
-			Op = Op | 0b01011000;
+		else if(A == "BX" && B == "AX"){
+			Op = 0b01011000;
 		}
 		else if(A[1] == 'X' && B[1] == 'X'){
-			Op = Op | 0b01010000;
+			Op = 0b01010000;
 			Len = 2;
 		}
 		else if((A[1] == 'H' || A[1] == 'L') && (B[1] == 'H' || B[1] == 'L')){
-			Op = Op | 0b01000000;
+			Op = 0b01000000;
 			Len = 2;
 		}
 		else{
@@ -301,24 +301,24 @@ instruction::instruction(string opCode, string Ri, string Rj, string iw2, int li
 		}
 		//Register
 		if(Len == 2){
-			off = "B" + RegisterNibble(A) + RegisterNibble(B);
+			Data = "B" + RegisterNibble(A) + RegisterNibble(B);
 		}
 	}
 	//SUB
 	else if(opCode == "SUB"){
 		//Opcode
 		if(A == "BL" && B == "AL"){
-			Op = Op | 0b01001001;
+			Op = 0b01001001;
 		}
-		else if(A == "BX" && B == 'AX'){
-			Op = Op | 0b01011001;
+		else if(A == "BX" && B == "AX"){
+			Op = 0b01011001;
 		}
 		else if(A[1] == 'X' && B[1] == 'X'){
-			Op = Op | 0b01010001;
+			Op = 0b01010001;
 			Len = 2;
 		}
 		else if((A[1] == 'H' || A[1] == 'L') && (B[1] == 'H' || B[1] == 'L')){
-			Op = Op | 0b01000001;
+			Op = 0b01000001;
 			Len = 2;
 		}
 		else{
@@ -326,24 +326,24 @@ instruction::instruction(string opCode, string Ri, string Rj, string iw2, int li
 		}
 		//Register
 		if(Len == 2){
-			off = "B" + RegisterNibble(A) + RegisterNibble(B);
+			Data = "B" + RegisterNibble(A) + RegisterNibble(B);
 		}
 	}
 	//AND
 	else if(opCode == "AND"){
 		//Opcode
 		if(A == "BL" && B == "AL"){
-			Op = Op | 0b01001010;
+			Op = 0b01001010;
 		}
-		else if(A == "BX" && B == 'AX'){
-			Op = Op | 0b01011010;
+		else if(A == "BX" && B == "AX"){
+			Op = 0b01011010;
 		}
 		else if(A[1] == 'X' && B[1] == 'X'){
-			Op = Op | 0b01010010;
+			Op = 0b01010010;
 			Len = 2;
 		}
 		else if((A[1] == 'H' || A[1] == 'L') && (B[1] == 'H' || B[1] == 'L')){
-			Op = Op | 0b01000010;
+			Op = 0b01000010;
 			Len = 2;
 		}
 		else{
@@ -351,24 +351,24 @@ instruction::instruction(string opCode, string Ri, string Rj, string iw2, int li
 		}
 		//Register
 		if(Len == 2){
-			off = "B" + RegisterNibble(A) + RegisterNibble(B);
+			Data = "B" + RegisterNibble(A) + RegisterNibble(B);
 		}
 	}
 	//OR
 	else if(opCode == "OR"){
 		//Opcode
 		if(A == "BL" && B == "AL"){
-			Op = Op | 0b01001011;
+			Op = 0b01001011;
 		}
-		else if(A == "BX" && B == 'AX'){
-			Op = Op | 0b01011011;
+		else if(A == "BX" && B == "AX"){
+			Op = 0b01011011;
 		}
 		else if(A[1] == 'X' && B[1] == 'X'){
-			Op = Op | 0b01010011;
+			Op = 0b01010011;
 			Len = 2;
 		}
 		else if((A[1] == 'H' || A[1] == 'L') && (B[1] == 'H' || B[1] == 'L')){
-			Op = Op | 0b01000011;
+			Op = 0b01000011;
 			Len = 2;
 		}
 		else{
@@ -376,21 +376,21 @@ instruction::instruction(string opCode, string Ri, string Rj, string iw2, int li
 		}
 		//Register
 		if(Len == 2){
-			off = "B" + RegisterNibble(A) + RegisterNibble(B);
+			Data = "B" + RegisterNibble(A) + RegisterNibble(B);
 		}
 	}
 	//XOR
 	else if(opCode == "XOR"){
 		//Opcode
 		if(A == "BL" && B == "AL"){
-			Op = Op | 0b01001100;
+			Op = 0b01001100;
 		}
 		else if(A[1] == 'X' && B[1] == 'X'){
-			Op = Op | 0b01010100;
+			Op = 0b01010100;
 			Len = 2;
 		}
 		else if((A[1] == 'H' || A[1] == 'L') && (B[1] == 'H' || B[1] == 'L')){
-			Op = Op | 0b01000100;
+			Op = 0b01000100;
 			Len = 2;
 		}
 		else{
@@ -398,34 +398,34 @@ instruction::instruction(string opCode, string Ri, string Rj, string iw2, int li
 		}
 		//Register
 		if(Len == 2){
-			off = "B" + RegisterNibble(A) + RegisterNibble(B);
+			Data = "B" + RegisterNibble(A) + RegisterNibble(B);
 		}
 	}
 	//MOV
 	else if(opCode == "MOV"){
 		//Opcode
 		if(A == "BL" && B == "AL"){
-			Op = Op | 0b01001101;
+			Op = 0b01001101;
 		}
-		else if(A == "BX" && B == 'AX'){
-			Op = Op | 0b01011101;
+		else if(A == "BX" && B == "AX"){
+			Op = 0b01011101;
 		}
-		else if(A == "DX" && B == 'AX'){
-			Op = Op | 0b01011100;
+		else if(A == "DX" && B == "AX"){
+			Op = 0b01011100;
 		}
-		else if(A == "EX" && B == 'AX'){
-			Op = Op | 0b01011110;
+		else if(A == "EX" && B == "AX"){
+			Op = 0b01011110;
 		}
-		else if(A == "SP" && B == 'AX'){
-			Op = Op | 0b01011111;
+		else if(A == "SP" && B == "AX"){
+			Op = 0b01011111;
 		}
 
 		else if(A[1] == 'X' && B[1] == 'X'){
-			Op = Op | 0b01010101;
+			Op = 0b01010101;
 			Len = 2;
 		}
 		else if((A[1] == 'H' || A[1] == 'L') && (B[1] == 'H' || B[1] == 'L')){
-			Op = Op | 0b01000101;
+			Op = 0b01000101;
 			Len = 2;
 		}
 		else{
@@ -433,12 +433,13 @@ instruction::instruction(string opCode, string Ri, string Rj, string iw2, int li
 		}
 		//Register
 		if(Len == 2){
-			off = "B" + RegisterNibble(A) + RegisterNibble(B);
+			Data = "B" + RegisterNibble(A) + RegisterNibble(B);
 		}
 	}
-	//MEM
-	else if(opCode == "MEM"){
-		Mem = Ri;
+	//Data
+	else if(opCode == "DAT" || opCode == "DATA"){
+		Data = A;
+		isData = true;
 	}
 	else{
 		error(3);
@@ -459,119 +460,13 @@ void instruction::convertNum(vector<point> points, int address){
 	if(B.empty()){
 		B = "0";
 	}
-	if(off.empty()){
-		off = "0";
+	if(Data.empty()){
+		Data = "0";
 	}
 
-	//Check A
-	A = A.substr(1, A.size());
-	int t = atoi(A.c_str());
-	A = bitset<5>(t).to_string();
-
-	//Check B
-	if(B[0] == '#'){
-		//Memory Location
-		int success = 0;
-		for(int i=1; i<points.size(); i++){
-			if(B == points.at(i).getName()){
-				B = bitset<5>(points.at(i).getLocation()).to_string();
-				success = 1;
-			}
-		}
-		if(!success){
-			B = bitset<14>(0).to_string();
-		}
-	}
-	else if(B[0] == 'R'){
-		//Register
-		B = B.substr(1, B.size());
-		int t = atoi(B.c_str());
-		B = bitset<5>(t).to_string();
-	}
-	else if(B[0] == 'B'){
-		//Binary
-		B = B.substr(1, B.size());
-		int t = strtol(B.c_str(), NULL, 2);
-		B = bitset<5>(t).to_string();
-	}
-	else if(B[0] == 'H'){
-		//Hexidecimal
-		B = B.substr(1, B.size());
-		int t = strtol(B.c_str(), NULL, 16);
-		B = bitset<5>(t).to_string();
-	}
-	else{
-		//Decimal
-		int t = atoi(B.c_str());
-		B = bitset<5>(t).to_string();
-	}
-
-	//iw2
-	if(off[0] == '#'){
-		//Memory Location
-		int success = 0;
-		for(int i=1; i<points.size(); i++){
-			if(off == points.at(i).getName()){
-				off = bitset<14>(points.at(i).getLocation()).to_string();
-				success = 1;
-			}
-		}
-		if(!success){
-			off = bitset<14>(0).to_string();
-		}
-	}
-	else if(off[0] == 'B'){
-		//Binary
-		off = off.substr(1, off.size());
-		int t = strtol(off.c_str(), NULL, 2);
-		off = bitset<14>(t).to_string();
-	}
-	else if(off[0] == 'H'){
-		//Hexidecimal
-		off = off.substr(1, off.size());
-		int t = strtol(off.c_str(), NULL, 16);
-		off = bitset<14>(t).to_string();
-	}
-	else{
-		//Decimal
-		int t = atoi(off.c_str());
-		off = bitset<14>(t).to_string();
-	}
-
-	//Mem
-	if(!Mem.empty()){
-		if(Mem[0] == '#'){
-			//Memory Location
-			int success = 0;
-			for(int i=1; i<points.size(); i++){
-				if(Mem == points.at(i).getName()){
-					Mem = bitset<14>(points.at(i).getLocation()).to_string();
-					success = 1;
-				}
-			}
-			if(!success){
-				Mem = bitset<14>(0).to_string();
-			}
-		}
-		else if(Mem[0] == 'B'){
-			//Binary
-			Mem = Mem.substr(1, Mem.size());
-			int t = strtol(Mem.c_str(), NULL, 2);
-			Mem = bitset<14>(t).to_string();
-		}
-		else if(Mem[0] == 'H'){
-			//Hexidecimal
-			Mem = Mem.substr(1, Mem.size());
-			int t = strtol(Mem.c_str(), NULL, 16);
-			Mem = bitset<14>(t).to_string();
-		}
-		else{
-			//Decimal
-			int t = atoi(Mem.c_str());
-			Mem = bitset<14>(t).to_string();
-		}
-	}
-
+	A = toBinary(points, A);
+	B = toBinary(points, B);
+	Data = toBinary(points, Data);
 }
 
 //Generate line(s) for instruction
@@ -579,8 +474,8 @@ string instruction::writeWord(int &address){
 	string out = "";
 
 	//Raw Data
-	if(!Mem.empty()){
-		out += Mem;
+	if(isData){
+		out += Data;
 		address++;
 	}
 	//First instruction word
@@ -589,7 +484,7 @@ string instruction::writeWord(int &address){
 		address++;
 	//Second instruction word
 		if(Len == 2){
-			out += off;
+			out += Data;
 			address++;
 		}
 	}
@@ -598,7 +493,7 @@ string instruction::writeWord(int &address){
 
 string instruction::RegisterNibble(string reg){
 	string nibble = "";
-	switch(reg[1]){
+	switch(reg[0]){
 	case 'A':
 		nibble = "000";
 		break;
@@ -618,9 +513,9 @@ string instruction::RegisterNibble(string reg){
 		nibble = "100";
 		break;
 	default:
-		nibble = "000";
+		error(1);
 	}
-	switch(reg[2]){
+	switch(reg[1]){
 	case 'X':
 		nibble += '0';
 		break;
@@ -636,8 +531,70 @@ string instruction::RegisterNibble(string reg){
 	return nibble;
 }
 
+string instruction::toBinary(vector<point> points, string input){
+	string output = "";
+	if(input[0] == '#'){
+		//Memory Location
+		int success = 0;
+		for(int i=0; i<points.size(); i++){
+			if(input == points.at(i).getName()){
+				int t = points.at(i).getLocation();
+				output = char(t);
+				success = 1;
+			}
+		}
+		if(!success){
+			error(4);
+		}
+	}
+	else if(input[0] == 'B'){
+		//Binary
+		output = input.substr(1, input.size());
+		int t = strtol(output.c_str(), NULL, 2);
+		if(t < 0b100000000){
+			output = char(t);
+		}
+		else{
+			error(5);
+		}
+	}
+	else if(input[0] == 'H'){
+		//Hexidecimal
+		output = input.substr(1, input.size());
+		int t = strtol(output.c_str(), NULL, 16);
+		if(t < 0b100000000){
+			output = char(t);
+		}
+		else{
+			error(5);
+		}
+	}
+	else if(input[0] == 'D'){
+		//Decimal
+		output = input.substr(1, input.size());
+		int t = atoi(output.c_str());
+		if(t < 0b100000000){
+			output = char(t);
+		}
+		else{
+			error(5);
+		}
+	}
+	else{
+		//Decimal (Implicit)
+		int t = atoi(input.c_str());
+		if(t < 0b100000000){
+			output = char(t);
+		}
+		else{
+			error(5);
+		}
+	}
+	return output;
+}
+
 void instruction::error(int errNum){
-	string errorString = "Error at " + sourceLine + " - ";
+	string errorString = "Error at " + to_string(sourceLine) + " - ";
 	switch(errNum){
 	case 1:
 		errorString += "Invalid register specified";
@@ -646,7 +603,13 @@ void instruction::error(int errNum){
 		errorString += "Invalid register or register combination specified";
 		break;
 	case 3:
-		errorString == "Invalid OpCode specified";
+		errorString += "Invalid OpCode specified";
+		break;
+	case 4:
+		errorString += "Invalid address tag specified";
+		break;
+	case 5:
+		errorString += "Invalid value specified - Must be between D00-D255, H00-HFF, B00000000-B11111111";
 		break;
 	default:
 		errorString += "Unknown error";

@@ -7,7 +7,7 @@ using namespace std;
 
 class instruction{
 public:
-	instruction(string opCode, string Ri, string Rj = "0", string iw2 = "0", int lineNum);
+	instruction( int lineNum, string opCode, string op1, string op2 = "0", string op3 = "0");
 	int getLength();
 	void convertNum(vector<point> points, int address);
 	string writeWord(int &address);
@@ -16,11 +16,12 @@ private:
 	char Op;
 	string A;
 	string B;
-	string off;
-	string Mem;
+	string Data;
+	bool isData;
 	int Len;
 	int sourceLine;
 	string RegisterNibble(string reg);
+	string toBinary(vector<point> points, string input);
 	void error(int errorNum);
 };
 
